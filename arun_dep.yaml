@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arun-deployment
+  labels:
+    app: arun
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: arun
+  template:
+    metadata:
+      labels:
+        app: arun
+    spec:
+      containers:
+      - name: arun
+        image: arunvel1988/appv1
+        ports:
+        - containerPort: 8000
+
