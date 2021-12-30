@@ -1,6 +1,6 @@
 FROM busybox
 
-MAINTAINER ARUNv2 <arunvela@cdac.in>
+MAINTAINER ARUN <arunvela@cdac.in>
 
 ADD index.html /www/index.html
 
