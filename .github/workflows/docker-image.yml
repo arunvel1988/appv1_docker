@@ -23,7 +23,7 @@ jobs:
       run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
     - name: Push Docker image
-      run: docker push my-image-name:${{ github.run_number }}
+      run: docker push arunvel1988/cdac:${{ github.run_number }}
 
     - name: Log out of Docker Hub
       run: docker logout
