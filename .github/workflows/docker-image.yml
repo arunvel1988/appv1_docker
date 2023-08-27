@@ -30,7 +30,7 @@ jobs:
 
       - name: Run Trivy vulnerability scan
         run: |
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image arunvelpep1988/github_actions_demo_repo:${{ github.run_number }}
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image $DOCKER_IMAGE_TAG
 
       - name: Push Docker image
         run: docker push $DOCKER_IMAGE_TAG
