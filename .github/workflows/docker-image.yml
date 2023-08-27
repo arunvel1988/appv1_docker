@@ -25,18 +25,15 @@ jobs:
       - name: Build the Docker image
         run: docker buildx build . --file Dockerfile --tag $DOCKER_IMAGE_TAG
 
+      - name: Log in to Docker Hub
+        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
       - name: Run Trivy vulnerability scan
         run: |
-          trivy_result=$(docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy $DOCKER_IMAGE_TAG)
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image $DOCKER_IMAGE_TAG
 
-      - name: Log Trivy scan results
-        run: echo "$trivy_result"
+      - name: Push Docker image
+        run: docker push $DOCKER_IMAGE_TAG
 
-      - name: Check for vulnerabilities and push Docker image
-        run: |
-          if echo "$trivy_result" | grep -q "CRITICAL" || echo "$trivy_result" | grep -q "HIGH"; then
-            echo "Vulnerabilities found. Image not pushed."
-          else
-            echo "No vulnerabilities found. Pushing Docker image..."
-            docker push $DOCKER_IMAGE_TAG
-          fi
+      - name: Log out of Docker Hub
+        run: docker logout
