@@ -23,7 +23,8 @@ jobs:
         run: echo "DOCKER_IMAGE_TAG=arunvelpep1988/github_actions_demo_repo:demo" >> $GITHUB_ENV
 
       - name: Build the Docker image
-        run: docker buildx build . --file Dockerfile --tag $DOCKER_IMAGE_TAG
+        run: docker buildx build . --file Dockerfile --tag runvelpep1988/github_actions_demo_repo:demo
+
 
       - name: Log in to Docker Hub
         run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
