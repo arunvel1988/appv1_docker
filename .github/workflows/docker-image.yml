@@ -2,42 +2,38 @@ name: Docker Image CI with Vulnerability Scan
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build_and_scan:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
-    - name: Build the Docker image
-      run: docker buildx build . --file Dockerfile --tag ${{ env.DOCKER_IMAGE_TAG }}
+      - name: Build the Docker image
+        run: docker buildx build . --file Dockerfile --tag ${{ env.DOCKER_IMAGE_TAG }}
 
-    - name: Scan Docker image for vulnerabilities
-      run: |
-        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-          aquasec/trivy ${{ env.DOCKER_IMAGE_TAG }}
+      - name: Log in to Docker Hub
+        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
-    - name: Log in to Docker Hub
-      run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Push Docker image
+        run: docker push ${{ env.DOCKER_IMAGE_TAG }}
 
-    - name: Push Docker image (if no vulnerabilities)
-      run: |
-        if [[ ! $(docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy --exit-code 1 ${{ env.DOCKER_IMAGE_TAG }}) ]]; then
-          docker push ${{ env.DOCKER_IMAGE_TAG }}
-        else
-          echo "Vulnerabilities found. Image not pushed."
-        fi
-
-    - name: Log out of Docker Hub
-      run: docker logout
+      - name: Run Trivy vulnerability scan
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy --exit-code 1 ${{ env.DOCKER_IMAGE_TAG }}
+        
+      - name: Log out of Docker Hub
+        run: docker logout
 
 env:
   DOCKER_IMAGE_TAG: arunvelpep1988/github_actions_demo_repo:${{ github.run_number }}
