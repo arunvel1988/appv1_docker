@@ -16,12 +16,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Set Docker Image Tag variable
+        run: echo "DOCKER_IMAGE_TAG=arunvelpep1988/github_actions_demo_repo:${{ github.run_number }}" >> $GITHUB_ENV
+
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag ${{ env.DOCKER_IMAGE_TAG }}
+        run: docker buildx build . --file Dockerfile --tag $DOCKER_IMAGE_TAG
 
       - name: Run Trivy vulnerability scan
         run: |
-          trivy_result=$(docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy ${{ env.DOCKER_IMAGE_TAG }})
+          trivy_result=$(docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy $DOCKER_IMAGE_TAG)
 
       - name: Log Trivy scan results
         run: echo "$trivy_result"
@@ -32,8 +38,5 @@ jobs:
             echo "Vulnerabilities found. Image not pushed."
           else
             echo "No vulnerabilities found. Pushing Docker image..."
-            docker push ${{ env.DOCKER_IMAGE_TAG }}
+            docker push $DOCKER_IMAGE_TAG
           fi
-
-env:
-  DOCKER_IMAGE_TAG: arunvelpep1988/github_actions_demo_repo:${{ github.run_number }}
