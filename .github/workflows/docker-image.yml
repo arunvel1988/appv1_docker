@@ -1,39 +1,25 @@
-name: Docker Image CI with Vulnerability Scan
-
+name: build
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
-
 jobs:
-  build_and_scan:
-    runs-on: ubuntu-latest
-
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Set Docker Image Tag variable
-        run: echo "DOCKER_IMAGE_TAG=arunvelpep1988/github_actions_demo_repo:demo" >> $GITHUB_ENV
-      - name: Build the Docker image
-        run: docker buildx build . --file Dockerfile --tag arunvelpep1988/github_actions_demo_repo:demo
-      - name: Log in to Docker Hub
-        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build an image from Dockerfile
+        run: |
+          docker build -t docker.io/arunvelpep1988/github_actions_demo_repo:${{ github.sha }} .
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'arunvelpep1988/github_actions_demo_repo:demo'
+          image-ref: 'docker.io/arunvelpep1988/github_actions_demo_repo:${{ github.sha }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-      - name: Push Docker image
-        run: docker push arunvelpep1988/github_actions_demo_repo:demo
-
-      - name: Log out of Docker Hub
-        run: docker logout
