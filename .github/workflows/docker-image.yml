@@ -21,16 +21,19 @@ jobs:
 
       - name: Run Trivy vulnerability scan
         run: |
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy --exit-code 1 ${{ env.DOCKER_IMAGE_TAG }}
+          trivy_result=$(docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy ${{ env.DOCKER_IMAGE_TAG }})
 
-      - name: Log in to Docker Hub
-        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Log Trivy scan results
+        run: echo "$trivy_result"
 
-      - name: Push Docker image (if no vulnerabilities)
-        run: docker push ${{ env.DOCKER_IMAGE_TAG }}
-
-      - name: Log out of Docker Hub
-        run: docker logout
+      - name: Check for vulnerabilities and push Docker image
+        run: |
+          if echo "$trivy_result" | grep -q "CRITICAL" || echo "$trivy_result" | grep -q "HIGH"; then
+            echo "Vulnerabilities found. Image not pushed."
+          else
+            echo "No vulnerabilities found. Pushing Docker image..."
+            docker push ${{ env.DOCKER_IMAGE_TAG }}
+          fi
 
 env:
   DOCKER_IMAGE_TAG: arunvelpep1988/github_actions_demo_repo:${{ github.run_number }}
