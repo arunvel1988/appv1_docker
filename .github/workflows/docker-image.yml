@@ -20,7 +20,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Set Docker Image Tag variable
-        run: echo "DOCKER_IMAGE_TAG=arunvelpep1988/github_actions_demo_repo:${{ github.run_number }}" >> $GITHUB_ENV
+        run: echo "DOCKER_IMAGE_TAG=arunvelpep1988/github_actions_demo_repo:demo" >> $GITHUB_ENV
 
       - name: Build the Docker image
         run: docker buildx build . --file Dockerfile --tag $DOCKER_IMAGE_TAG
@@ -30,10 +30,10 @@ jobs:
 
       - name: Run Trivy vulnerability scan
         run: |
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image $DOCKER_IMAGE_TAG
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image arunvelpep1988/github_actions_demo_repo:demo
 
       - name: Push Docker image
-        run: docker push $DOCKER_IMAGE_TAG
+        run: docker push arunvelpep1988/github_actions_demo_repo:demo
 
       - name: Log out of Docker Hub
         run: docker logout
