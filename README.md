@@ -1,7 +1,7 @@
 # Appv1 Dockerized Application for book "Cloud Native CI/CD with Tekton & ArgoCD"
 
 This repository is part of the project for the book "Cloud Native CI/CD with Tekton & ArgoCD." 
-It contains the source code for a simple Dockerized web application named Appv1.
+It contains the source code for a simple Dockerized web application 
 
 ## Files
 1. **Dockerfile:**
